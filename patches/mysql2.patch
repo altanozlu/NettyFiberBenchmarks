@@ -1,0 +1,74 @@
+Index: src/main/java/org/mariadb/jdbc/internal/io/input/ReadAheadBufferedStream.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/main/java/org/mariadb/jdbc/internal/io/input/ReadAheadBufferedStream.java	(date 1555628670000)
++++ src/main/java/org/mariadb/jdbc/internal/io/input/ReadAheadBufferedStream.java	(date 1555628670000)
+@@ -36,6 +36,7 @@
+ import java.io.FilterInputStream;
+ import java.io.IOException;
+ import java.io.InputStream;
++import java.util.concurrent.locks.ReentrantLock;
+
+ /**
+  * Permit to buffer socket data, reading not only asked bytes, but available number of bytes when possible.
+@@ -46,6 +47,7 @@
+   private int end;
+   private int pos;
+   private static final int BUF_SIZE = 16384;
++  private ReentrantLock lock=new ReentrantLock();
+
+   public ReadAheadBufferedStream(InputStream in) {
+     super(in);
+@@ -58,14 +60,20 @@
+    * @return byte value
+    * @throws IOException if socket reading error.
+    */
+-  public synchronized int read() throws IOException {
+-    if (pos >= end) {
+-      fillBuffer(1);
+-      if (pos >= end) {
+-        return -1;
+-      }
+-    }
+-    return buf[pos++] & 0xff;
++  public int read() throws IOException {
++    lock.lock();
++    try {
++      if (pos >= end) {
++        fillBuffer(1);
++        if (pos >= end) {
++          return -1;
++        }
++      }
++      return buf[pos++] & 0xff;
++    }
++    finally {
++      lock.unlock();
++    }
+   }
+
+   /**
+@@ -77,8 +85,9 @@
+    * @return number of added bytes
+    * @throws IOException if exception during socket reading
+    */
+-  public synchronized int read(byte[] externalBuf, int off, int len) throws IOException {
+-
++  public int read(byte[] externalBuf, int off, int len) throws IOException {
++    lock.lock();
++    try{
+     if (len == 0) {
+       return 0;
+     }
+@@ -116,6 +125,9 @@
+       if (totalReads >= len || super.available() <= 0) {
+         return totalReads;
+       }
++    }}
++    finally {
++      lock.unlock();
+     }
+   }
+

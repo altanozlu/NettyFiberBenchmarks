@@ -1,0 +1,18 @@
+Index: src/main/com/mongodb/internal/connection/SocketChannelStream.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/main/com/mongodb/internal/connection/SocketChannelStream.java	(date 1555628243000)
++++ src/main/com/mongodb/internal/connection/SocketChannelStream.java	(date 1555628243000)
+@@ -69,7 +69,9 @@
+         while (inetSocketAddresses.hasNext()) {
+             SocketChannel socketChannel = SocketChannel.open();
+             try {
+-                SocketStreamHelper.initialize(socketChannel.socket(), inetSocketAddresses.next(), settings, sslSettings);
++                socketChannel.connect(inetSocketAddresses.next());
++                //We need more work in here
++                //  SocketStreamHelper.initialize(socketChannel.socket(), inetSocketAddresses.next(), settings, sslSettings);
+                 return socketChannel;
+             } catch (SocketTimeoutException e) {
+                 if (!inetSocketAddresses.hasNext()) {

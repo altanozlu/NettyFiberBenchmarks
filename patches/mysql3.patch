@@ -1,0 +1,46 @@
+Index: src/main/java/org/mariadb/jdbc/internal/util/pool/Pools.java
+IDEA additional info:
+Subsystem: com.intellij.openapi.diff.impl.patch.CharsetEP
+<+>UTF-8
+===================================================================
+--- src/main/java/org/mariadb/jdbc/internal/util/pool/Pools.java	(date 1555628738000)
++++ src/main/java/org/mariadb/jdbc/internal/util/pool/Pools.java	(date 1555628738000)
+@@ -27,6 +27,8 @@
+ import java.util.concurrent.ScheduledThreadPoolExecutor;
+ import java.util.concurrent.TimeUnit;
+ import java.util.concurrent.atomic.AtomicInteger;
++import java.util.concurrent.locks.ReentrantLock;
++
+ import org.mariadb.jdbc.UrlParser;
+ import org.mariadb.jdbc.internal.util.scheduler.MariaDbThreadFactory;
+ 
+@@ -36,6 +38,8 @@
+   private static final Map<UrlParser, Pool> poolMap = new ConcurrentHashMap<>();
+   private static ScheduledThreadPoolExecutor poolExecutor = null;
+ 
++  private static ReentrantLock lock = new ReentrantLock();
++
+   /**
+    * Get existing pool for a configuration. Create it if doesn't exists.
+    *
+@@ -44,7 +48,9 @@
+    */
+   public static Pool retrievePool(UrlParser urlParser) {
+     if (!poolMap.containsKey(urlParser)) {
+-      synchronized (poolMap) {
++      lock.lock();
++      try  {
++
+         if (!poolMap.containsKey(urlParser)) {
+           if (poolExecutor == null) {
+             poolExecutor = new ScheduledThreadPoolExecutor(1,
+@@ -55,6 +61,9 @@
+           return pool;
+         }
+       }
++      finally {
++        lock.unlock();
++      }
+     }
+     return poolMap.get(urlParser);
+   }
