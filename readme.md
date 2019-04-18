@@ -96,10 +96,11 @@ Results for Netty with fibers after warmup
 **Info about my configuration**
 ```
 MongoDB server version: 4.0.3
-MongoDB driver version: 3.10.1
+MongoDB driver version: 3.10.1 (Netty)
+MongoDB driver version: 3.11.0 (Netty with fibers) (Edited for using with fibers you can find it at lib folder)
 Netty version: 4.1.34
 MySQL server version: 8.0.15 
-MySQL client(fiber) version: MariaDB java client 2.4.1(Edited for using with fibers you can find it at lib folder)
+MySQL client(fiber) version: MariaDB java client 2.4.1 (Edited for using with fibers you can find it at lib folder)
 
 
 
