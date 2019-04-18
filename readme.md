@@ -46,30 +46,22 @@ Results for Netty with fibers after warmup
 
 ```
 
-**MongoDB Benchmark:**
+**Mysql Benchmark:**
 
 Results for Netty
 ```
-     Running 5s test @ http://127.0.0.1:8080/index.html
-       1 threads and 400 connections
-       Thread Stats   Avg      Stdev     Max   +/- Stdev
-         Latency    18.47ms    8.63ms  39.62ms   61.55%
-         Req/Sec    21.68k     3.41k   25.81k    54.00%
-       107777 requests in 5.01s, 16.86MB read
-       Socket errors: connect 0, read 2, write 0, timeout 0
-     Requests/sec:  21495.16
-     Transfer/sec:      3.36MB
+     
 ```
 Results for Netty with fibers after warmup
 ```
     Running 5s test @ http://127.0.0.1:8080/index.html
-      1 threads and 400 connections
+      1 threads and 50 connections
       Thread Stats   Avg      Stdev     Max   +/- Stdev
-        Latency    33.39ms    4.92ms  81.96ms   61.13%
-        Req/Sec    12.00k     1.69k   15.00k    76.00%
-      59634 requests in 5.01s, 9.33MB read
-    Requests/sec:  11902.87
-    Transfer/sec:      1.86MB
+        Latency    10.32ms   29.19ms 346.35ms   90.87%
+        Req/Sec    30.49k     4.01k   35.52k    86.00%
+      151760 requests in 5.00s, 12.70MB read
+    Requests/sec:  30331.68
+    Transfer/sec:      2.54MB
 
 ```
 
@@ -79,6 +71,9 @@ Results for Netty with fibers after warmup
 MongoDB server version: 4.0.3
 MongoDB driver version: 3.10.1
 Netty version: 4.1.34
+MySQL server version: 8.0.15 
+MySQL client(fiber) version: MariaDB java client 2.4.1(Edited for using with fibers you can find it at lib folder)
+
 
 
 MacOS Mojave (10.14.4)
