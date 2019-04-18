@@ -63,7 +63,7 @@ public class NettyHttpServer {
 
         masterGroup = new NioEventLoopGroup(8);
 
-        slaveGroup = new NioEventLoopGroup(8);
+        slaveGroup = new NioEventLoopGroup(8,new FiberPerTaskExecutor(new FiberFactory()));
 
 
     }
