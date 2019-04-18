@@ -1,25 +1,48 @@
 package net.redboxgames.ecev;
 
-import io.netty.buffer.ByteBuf;
-import io.netty.buffer.Unpooled;
-import io.netty.channel.ChannelFutureListener;
+import com.github.jasync.sql.db.mysql.MySQLConnection;
+import com.github.jasync.sql.db.mysql.MySQLConnectionBuilder;
+import com.github.jasync.sql.db.pool.ConnectionPool;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshaker;
 import io.netty.handler.codec.http.websocketx.WebSocketServerHandshakerFactory;
-import org.bson.Document;
 
-import java.nio.charset.StandardCharsets;
+
+import java.sql.*;
+import java.util.Random;
 
 import static io.netty.buffer.Unpooled.copiedBuffer;
 
-public class HttpServerHandler extends ChannelInboundHandlerAdapter {
 
+public class HttpServerHandler extends ChannelInboundHandlerAdapter {
+    public Fiber fiber;
     WebSocketServerHandshaker handshaker;
+    static Random random = new Random();
 
     @Override
-    public void channelRead(ChannelHandlerContext ctx, Object msg) {
+    public void channelInactive(ChannelHandlerContext ctx) throws Exception {
+        if (fiber != null) {
+            fiber.cancel();
+        }
+
+    }
+
+    @Override
+    public void channelRead(ChannelHandlerContext ctx, Object msg) throws InterruptedException {
+        if (NettyHttpServer.testFiber) {
+            fiber = Fiber.schedule(() -> {
+                readBlock(ctx, msg);
+            });
+        } else {
+
+            readBlock(ctx, msg);
+        }
+
+    }
+
+    public void readBlock(ChannelHandlerContext ctx, Object msg) {
 
         if (msg instanceof HttpRequest) {
 
@@ -38,19 +61,28 @@ public class HttpServerHandler extends ChannelInboundHandlerAdapter {
                 handleHandshake(ctx, httpRequest);
             } else {
 
-
-                if (NettyHttpServer.testWithMongo) {
+                if (NettyHttpServer.testMysql) {
                     if (NettyHttpServer.testFiber) {
-                        Document document = NettyHttpServer.collection.find().first();
-                        final String responseMessage = document.toJson();
-                        write(ctx, HttpResponseStatus.OK, responseMessage);
-                    } else {
-                      /*  NettyHttpServer.collection.find().first((Document document, Throwable err) -> {
+                        try (Connection connection = NettyHttpServer.ds.getConnection();
+                             PreparedStatement statement = connection.prepareStatement("select email from authors where id = ?;");) {
+                            statement.setInt(1, random.nextInt(999) + 1);
+                            ResultSet rs = statement.executeQuery();
+                            if (rs.next()) {
+                                write(ctx, HttpResponseStatus.OK, String.valueOf(rs.getString("email")));
+                            } else {
 
-                            final String responseMessage = document.toJson();
-                            write(ctx, HttpResponseStatus.OK, responseMessage);
-                        });*/ //Can't have both of them at the same time
+                                write(ctx, HttpResponseStatus.INTERNAL_SERVER_ERROR, "err");
+                            }
+                            //Random random = new Random();
+                            //  statement.setInt(1, random.nextInt(999) + 1);
+                        } catch (SQLException e) {
+                            e.printStackTrace();
+                        }
+
                     }
+                }
+                if (NettyHttpServer.testMongoDB) {
+                    NettyHttpServer.collection.find().first();
                 } else {
                     final String responseMessage = "Hello from Netty!";
 
@@ -64,7 +96,9 @@ public class HttpServerHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        System.out.println(cause);
         write(ctx, HttpResponseStatus.INTERNAL_SERVER_ERROR, cause.getMessage());
+        super.exceptionCaught(ctx, cause);
     }
 
     private void write(ChannelHandlerContext ctx, HttpResponseStatus status, String responseMessage) {
