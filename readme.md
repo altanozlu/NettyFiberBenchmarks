@@ -46,6 +46,33 @@ Results for Netty with fibers after warmup
 
 ```
 
+**MongoDB Benchmark:**
+
+Results for Netty
+```
+     Running 15s test @ http://127.0.0.1:8080/index.html
+       1 threads and 400 connections
+       Thread Stats   Avg      Stdev     Max   +/- Stdev
+         Latency    18.34ms    9.00ms  61.19ms   64.45%
+         Req/Sec    21.92k     2.25k   24.29k    78.67%
+       327223 requests in 15.01s, 51.18MB read
+     Requests/sec:  21796.17
+     Transfer/sec:      3.41MB
+
+```
+Results for Netty with fibers after warmup
+```
+    Running 15s test @ http://127.0.0.1:8080/index.html
+      1 threads and 400 connections
+      Thread Stats   Avg      Stdev     Max   +/- Stdev
+        Latency    17.62ms    1.76ms  39.22ms   87.87%
+        Req/Sec    22.77k     1.40k   25.00k    77.33%
+      339898 requests in 15.01s, 53.16MB read
+    Requests/sec:  22639.19
+    Transfer/sec:      3.54MB
+
+```
+
 **Mysql Benchmark:**
 
 Results for Netty

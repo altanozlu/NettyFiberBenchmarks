@@ -1,9 +1,9 @@
 package net.redboxgames.ecev;
 
-import com.mongodb.client.MongoClient;
-import com.mongodb.client.MongoClients;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
+import com.mongodb.async.client.MongoClient;
+import com.mongodb.async.client.MongoClients;
+import com.mongodb.async.client.MongoCollection;
+import com.mongodb.async.client.MongoDatabase;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.*;
 import io.netty.channel.nio.*;
@@ -53,8 +53,8 @@ public class NettyHttpServer {
     private final EventLoopGroup masterGroup;
     private final EventLoopGroup slaveGroup;
     public static boolean testFiber = false;
-    public static boolean testMysql = true;
-    public static boolean testMongoDB = false;
+    public static boolean testMysql = false;
+    public static boolean testMongoDB = true;
     public static String mysqlUrl = "jdbc:mariadb://localhost:3306/bench?useSSL=false&user=root";
     public static MongoCollection<Document> collection;
     public static MariaDbPoolDataSource ds;
